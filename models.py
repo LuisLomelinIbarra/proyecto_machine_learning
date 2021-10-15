@@ -127,11 +127,8 @@ def main():
         axis=1)
 
     # open dict_csv's and create values dictionaries
-    langs = pd.read_csv('dataset/titles_dict.csv') 
-    langs = {key: index for index, key in enumerate(langs.key)}
-
-    genres = pd.read_csv('dataset/genres_dict.csv') 
-    genres = {key: index for index, key in enumerate(cast.key)}
+    languages = pd.read_csv('dataset/titles_dict.csv') 
+    langs = {key: index for index, key in enumerate(languages.key)}
 
     # substitute strings with numerical value from dictionary
     dataset.language = [langs[l] for l in dataset.language]
