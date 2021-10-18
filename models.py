@@ -12,10 +12,13 @@ from sklearn.preprocessing import label_binarize
 from sklearn.model_selection import train_test_split
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression, Perceptron
+from sklearn.linear_model import LogisticRegression, Perceptron, LinearRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import roc_curve, auc
+
+from sklearn.tree import DecisionTreeClassifier
+
 
 
 def test_models(X, y, n_classes):
@@ -28,14 +31,16 @@ def test_models(X, y, n_classes):
     )
 
     names = [
-        'knn', 'bayes', 'log reg', 'perceptron'
+        'knn', 'bayes', 'log reg', 'perceptron','decision_tree'
     ]
 
     clfs = [
         OneVsRestClassifier(KNeighborsClassifier(n_neighbors=5)),
         OneVsRestClassifier(GaussianNB()),
         OneVsRestClassifier(LogisticRegression()),
-        OneVsRestClassifier(Perceptron())
+        OneVsRestClassifier(Perceptron()),
+        OneVsRestClassifier(DecisionTreeClassifier()),
+        OneVsRestClassifier(LinearRegression())
     ]
 
     fig_count = 1
@@ -51,7 +56,7 @@ def test_models(X, y, n_classes):
 
         print('%15s %8.2f%%' % (name.center(15, ' '), score))
 
-        if name in ['knn', 'bayes']:
+        if name in ['knn', 'bayes','decision_tree']:
             y_score = clf.predict_proba(X_test)
 
         else:
