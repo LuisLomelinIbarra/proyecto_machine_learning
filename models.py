@@ -135,17 +135,47 @@ def main():
     languages = pd.read_csv('dataset/titles_dict.csv') 
     langs = {key: index for index, key in enumerate(languages.key)}
 
+    
+
     # substitute strings with numerical value from dictionary
     dataset.language = [langs[l] for l in dataset.language]
     
     # open ratings table
     ratings = pd.read_csv('dataset/ratings.csv')
+    
+    #getting max and min values for ratings
+    minRate = ratings['averageRating'].min()
+    maxRate = ratings['averageRating'].max()
+    newRatemax = 5
+    
+    #normalizing the votes
+    minVotes = ratings['numVotes'].min()
+    maxVotes = ratings['numVotes'].max()
+    ratings.numVotes = [((n - minVotes)/maxVotes) for n in ratings.numVotes]
+
+    
+    '''
+    #Adding the genres to the training data
+    #This is to see if we add the genres as a number can help the models
+    genreComplex = pd.read_csv('dataset/genres.csv')
+    valueCountsGenre = genreComplex['tconst'].value_counts()
+    
+    genComp = [valueCountsGenre[l] for l in dataset.tconst]
+
+    mingen = valueCountsGenre.min()
+    maxgen = valueCountsGenre.max()
+    genComp = [((n - minVotes)/maxVotes) for n in genComp]
+
+    dataset['genreComplex'] = genComp
+    '''
 
     # create dataset from merging tables by column tconst
     dataset = dataset.merge(ratings, left_on='tconst', right_on='tconst')
 
     # preparing attributes and target metric
-    y = dataset.averageRating.transform(lambda x: round(x / 2))
+    #y = dataset.averageRating.transform(lambda x: round(x / 2))
+    y = dataset.averageRating.transform(lambda x: round((x*newRatemax)/maxRate)) #mapping to values between de 0 a 5
+    #y = dataset.averageRating.transform(lambda x: round(x)) # just rounding the rating
     X = dataset.drop(['tconst', 'averageRating'], axis=1)
 
     test_models(X, y, len({rate for rate in y}))
