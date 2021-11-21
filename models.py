@@ -65,6 +65,7 @@ def test_models(X, y, n_classes):
         else:
             y_score = clf.fit(X_train, y_train).decision_function(X_test)
         
+        #Store results for wilcoxon test
         resscores.append([name,np.array(y_score).flatten()])
         # Compute ROC curve and ROC area for each class
         fpr = dict()
@@ -122,6 +123,7 @@ def test_models(X, y, n_classes):
         plt.savefig('results/ROC%s.png' % name)
         fig_count += 1
 
+    #Obtaining the best model via wilcoxon
     best = resscores[0]
     for res in resscores:
         if(best[0] != res[0] ):
