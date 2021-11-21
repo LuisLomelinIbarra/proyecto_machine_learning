@@ -7,6 +7,7 @@ from itertools import cycle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.stats import wilcoxon
 
 from sklearn.preprocessing import label_binarize
 from sklearn.model_selection import train_test_split
@@ -50,6 +51,8 @@ def test_models(X, y, n_classes):
 
     print('%15s%15s' % ('model'.center(15, ' '), 'precision'.center(15, ' ')))
 
+    resscores = []
+
     for name, clf in zip(names, clfs):
         clf.fit(X_train, y_train)
         score = clf.score(X_test, y_test) * 100
@@ -61,7 +64,8 @@ def test_models(X, y, n_classes):
 
         else:
             y_score = clf.fit(X_train, y_train).decision_function(X_test)
-
+        
+        resscores.append([name,np.array(y_score).flatten()])
         # Compute ROC curve and ROC area for each class
         fpr = dict()
         tpr = dict()
@@ -118,6 +122,20 @@ def test_models(X, y, n_classes):
         plt.savefig('results/ROC%s.png' % name)
         fig_count += 1
 
+    best = resscores[0]
+    for res in resscores:
+        if(best[0] != res[0] ):
+            print("Result of "+best[0]+" vs "+ res[0]+ ":")
+            stat,p = wilcoxon(best[1],res[1],alternative='greater')
+            if(p<0.5):
+                best = res
+            print("The best is "+best[0])    
+
+    print("The one that was ranked as best by all tests is "+best[0])
+            
+
+        
+
     plt.show()
 
 
@@ -154,7 +172,7 @@ def main():
     ratings.numVotes = [((n - minVotes)/maxVotes) for n in ratings.numVotes]
 
     
-    '''
+    
     #Adding the genres to the training data
     #This is to see if we add the genres as a number can help the models
     genreComplex = pd.read_csv('dataset/genres.csv')
@@ -165,9 +183,12 @@ def main():
     mingen = valueCountsGenre.min()
     maxgen = valueCountsGenre.max()
     genComp = [((n - minVotes)/maxVotes) for n in genComp]
-
-    dataset['genreComplex'] = genComp
-    '''
+    genres = pd.read_csv('dataset/genres_dict_v2.csv')
+    
+    dataset['genre'] =  np.ones(len(dataset.index))
+    gen = []
+    #dataset['genreComplex'] = genComp
+    
 
     # create dataset from merging tables by column tconst
     dataset = dataset.merge(ratings, left_on='tconst', right_on='tconst')
