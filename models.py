@@ -128,6 +128,7 @@ def test_models(X, y, n_classes):
     best = resscores[0]
     tabhead = ["H/null"]
     tab = []
+    print("\n\n")
     for res in resscores:
         tabhead.append(res[0])
         row = [res[0]]
@@ -135,7 +136,7 @@ def test_models(X, y, n_classes):
             
             if(res2[0] != res[0] ):
                 
-                stat,p = ranksums(best[1],res[1],alternative='greater')
+                stat,p = ranksums(res[1],res2[1],alternative='greater')
                 row.append(p)
             else:
                 row.append("-")
