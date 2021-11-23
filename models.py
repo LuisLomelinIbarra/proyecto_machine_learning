@@ -7,7 +7,7 @@ from itertools import cycle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.stats import wilcoxon
+from scipy.stats import ranksums
 
 from sklearn.preprocessing import label_binarize
 from sklearn.model_selection import train_test_split
@@ -128,10 +128,10 @@ def test_models(X, y, n_classes):
     for res in resscores:
         if(best[0] != res[0] ):
             print("Result of "+best[0]+" vs "+ res[0]+ ":")
-            stat,p = wilcoxon(best[1],res[1],alternative='greater')
+            stat,p = ranksums(best[1],res[1],alternative='greater')
             if(p<0.5):
                 best = res
-            print("The best is "+best[0])    
+            print("The best is "+best[0] + "with a p value of "+ str(p))    
 
     print("The one that was ranked as best by all tests is "+best[0])
             
