@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import ranksums
+from tabulate import tabulate
 
 from sklearn.preprocessing import label_binarize
 from sklearn.model_selection import train_test_split
@@ -125,19 +126,23 @@ def test_models(X, y, n_classes):
 
     #Obtaining the best model via wilcoxon
     best = resscores[0]
+    tabhead = ["H/null"]
+    tab = []
     for res in resscores:
-        if(best[0] != res[0] ):
-            print("Result of "+best[0]+" vs "+ res[0]+ ":")
-            stat,p = ranksums(best[1],res[1],alternative='greater')
-            if(p<0.5):
-                best = res
-            print("The best is "+best[0] + "with a p value of "+ str(p))    
-
-    print("The one that was ranked as best by all tests is "+best[0])
+        tabhead.append(res[0])
+        row = [res[0]]
+        for res2 in resscores:
             
-
-        
-
+            if(res2[0] != res[0] ):
+                
+                stat,p = ranksums(best[1],res[1],alternative='greater')
+                row.append(p)
+            else:
+                row.append("-")
+        tab.append(row)   
+    
+    
+    print(tabulate(tab, headers=tabhead, tablefmt='orgtbl'))
     plt.show()
 
 
