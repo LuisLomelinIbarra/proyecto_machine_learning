@@ -1,5 +1,5 @@
 INPUT_FOLDER = '../input/'
-DATASETS_FOLDER = '../datasets/'
+DATASETS_FOLDER = '../dataset/'
 
 NAME_BASICS_FILE = INPUT_FOLDER + 'name.basics.tsv'
 TITLE_AKAS_FILE = INPUT_FOLDER + 'title.akas.tsv'
