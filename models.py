@@ -7,6 +7,8 @@ from itertools import cycle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.stats import ranksums
+from tabulate import tabulate
 
 from sklearn.preprocessing import label_binarize
 from sklearn.model_selection import train_test_split
@@ -50,6 +52,8 @@ def test_models(X, y, n_classes):
 
     print('%15s%15s' % ('model'.center(15, ' '), 'precision'.center(15, ' ')))
 
+    resscores = []
+
     for name, clf in zip(names, clfs):
         clf.fit(X_train, y_train)
         score = clf.score(X_test, y_test) * 100
@@ -61,7 +65,9 @@ def test_models(X, y, n_classes):
 
         else:
             y_score = clf.fit(X_train, y_train).decision_function(X_test)
-
+        
+        #Store results for wilcoxon test
+        resscores.append([name,np.array(y_score).flatten()])
         # Compute ROC curve and ROC area for each class
         fpr = dict()
         tpr = dict()
@@ -118,6 +124,26 @@ def test_models(X, y, n_classes):
         plt.savefig('results/ROC%s.png' % name)
         fig_count += 1
 
+    #Obtaining the best model via wilcoxon
+    best = resscores[0]
+    tabhead = ["H/null"]
+    tab = []
+    print("\n\n")
+    for res in resscores:
+        tabhead.append(res[0])
+        row = [res[0]]
+        for res2 in resscores:
+            
+            if(res2[0] != res[0] ):
+                
+                stat,p = ranksums(res[1],res2[1],alternative='greater')
+                row.append(p)
+            else:
+                row.append("-")
+        tab.append(row)   
+    
+    
+    print(tabulate(tab, headers=tabhead, tablefmt='orgtbl'))
     plt.show()
 
 
@@ -138,6 +164,7 @@ def main():
     langs_dict = {key: index for index, key in enumerate(langs_csv.key)}
 
     # substitute strings with numerical value from dictionary
+
     dataset.language = [langs_dict[lang] for lang in dataset.language]
 
     ''' Genres '''
@@ -165,6 +192,7 @@ def main():
 
     dataset = dataset.merge(cast, left_on='tconst', right_on='tconst')
     '''
+
 
     ''' Ratings '''
 
